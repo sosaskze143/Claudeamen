@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المخالفات</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom-color: #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+        }
+        .search-bar input {
+            flex: 1;
+            margin-left: 10px;
+        }
+        .search-bar button {
+            width: auto;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 16px;
+        }
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+        .citizen-violations {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- نموذج تسجيل الدخول -->
+    <div id="login-page" class="container">
+        <div class="login-form">
+            <h2>تسجيل الدخول</h2>
+            <div class="form-group">
+                <label for="username">اسم المستخدم / رقم الهوية</label>
+                <input type="text" id="username" placeholder="أدخل اسم المستخدم أو رقم الهوية">
+            </div>
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" placeholder="أدخل كلمة المرور">
+            </div>
+            <button id="login-btn">تسجيل الدخول</button>
+        </div>
+    </div>
+
+    <!-- صفحة المدير -->
+    <div id="admin-page" class="container" style="display: none;">
+        <h1>نظام إدارة المخالفات - لوحة التحكم</h1>
+        <div class="tabs">
+            <div class="tab active" data-tab="citizens">إدارة المواطنين</div>
+            <div class="tab" data-tab="violations">تسجيل المخالفات</div>
+            <div class="tab" data-tab="search">البحث والاستعلام</div>
+            <div class="tab" data-tab="reports">التقارير</div>
+            <div class="tab" data-tab="logout">تسجيل الخروج</div>
+        </div>
+
+        <!-- قسم إدارة المواطنين -->
+        <div id="citizens-tab" class="tab-content active">
+            <div class="card">
+                <h2>إضافة مواطن جديد</h2>
+                <div class="form-group">
+                    <label for="citizen-name">الاسم الكامل</label>
+                    <input type="text" id="citizen-name" placeholder="أدخل الاسم الكامل للمواطن">
+                </div>
+                <div class="form-group">
+                    <label for="citizen-id">رقم الهوية الوطنية</label>
+                    <input type="text" id="citizen-id" placeholder="أدخل رقم الهوية الوطنية">
+                </div>
+                <div class="form-group">
+                    <label for="citizen-phone">رقم الجوال (اختياري)</label>
+                    <input type="text" id="citizen-phone" placeholder="أدخل رقم الجوال">
+                </div>
+                <div class="form-group">
+                    <label for="citizen-password">كلمة المرور</label>
+                    <input type="password" id="citizen-password" placeholder="أدخل كلمة المرور">
+                </div>
+                <button id="add-citizen-btn">إضافة المواطن</button>
+            </div>
+
+            <div class="card">
+                <h2>قائمة المواطنين</h2>
+                <div class="search-bar">
+                    <input type="text" id="citizen-search" placeholder="ابحث عن مواطن...">
+                    <button id="search-citizen-btn">بحث</button>
+                </div>
+                <table id="citizens-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم الكامل</th>
+                            <th>رقم الهوية</th>
+                            <th>رقم الجوال</th>
+                            <th>عدد المخالفات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- قسم تسجيل المخالفات -->
+        <div id="violations-tab" class="tab-content">
+            <div class="card">
+                <h2>تسجيل مخالفة جديدة</h2>
+                <div class="form-group">
+                    <label for="violation-citizen">المواطن</label>
+                    <select id="violation-citizen">
+                        <option value="" disabled selected>اختر المواطن</option>
+                        <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="violation-date">تاريخ المخالفة</label>
+                    <input type="date" id="violation-date">
+                </div>
+                <div class="form-group">
+                    <label for="violation-type">نوع المخالفة</label>
+                    <select id="violation-type">
+                        <option value="" disabled selected>اختر نوع المخالفة</option>
+                        <option value="سرعة">سرعة</option>
+                        <option value="تجاوز">تجاوز</option>
+                        <option value="وقوف خاطئ">وقوف خاطئ</option>
+                        <option value="إشارة حمراء">إشارة حمراء</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="violation-details">تفاصيل المخالفة</label>
+                    <textarea id="violation-details" rows="3" placeholder="أدخل تفاصيل المخالفة"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="violation-amount">المبلغ المالي للمخالفة</label>
+                    <input type="number" id="violation-amount" placeholder="أدخل المبلغ بالريال">
+                </div>
+                <button id="add-violation-btn">تسجيل المخالفة</button>
+            </div>
+
+            <div class="card">
+                <h2>قائمة المخالفات</h2>
+                <table id="violations-table">
+                    <thead>
+                        <tr>
+                            <th>المواطن</th>
+                            <th>رقم الهوية</th>
+                            <th>تاريخ المخالفة</th>
+                            <th>نوع المخالفة</th>
+                            <th>المبلغ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- قسم البحث والاستعلام -->
+        <div id="search-tab" class="tab-content">
+            <div class="card">
+                <h2>البحث والاستعلام</h2>
+                <div class="form-group">
+                    <label>نوع البحث</label>
+                    <select id="search-type">
+                        <option value="citizen">البحث عن مواطن</option>
+                        <option value="violation">البحث عن مخالفة</option>
+                    </select>
+                </div>
+
+                <!-- البحث عن مواطن -->
+                <div id="citizen-search-form">
+                    <div class="form-group">
+                        <label for="search-citizen-name">الاسم أو رقم الهوية</label>
+                        <input type="text" id="search-citizen-name" placeholder="أدخل اسم المواطن أو رقم الهوية">
+                    </div>
+                    <button id="search-citizen-submit">بحث</button>
+                </div>
+
+                <!-- البحث عن مخالفة -->
+                <div id="violation-search-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="search-violation-type">نوع المخالفة</label>
+                        <select id="search-violation-type">
+                            <option value="">كل الأنواع</option>
+                            <option value="سرعة">سرعة</option>
+                            <option value="تجاوز">تجاوز</option>
+                            <option value="وقوف خاطئ">وقوف خاطئ</option>
+                            <option value="إشارة حمراء">إشارة حمراء</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-violation-date">تاريخ المخالفة</label>
+                        <input type="date" id="search-violation-date">
+                    </div>
+                    <button id="search-violation-submit">بحث</button>
+                </div>
+            </div>
+
+            <div class="card" id="search-results">
+                <h2>نتائج البحث</h2>
+                <div id="search-results-content">
+                    <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    <p>أدخل معايير البحث للحصول على النتائج</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم التقارير -->
+        <div id="reports-tab" class="tab-content">
+            <h2>التقارير الإحصائية</h2>
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <h3>إجمالي عدد المخالفات</h3>
+                    <p id="total-violations">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>مجموع المبالغ المستحقة</h3>
+                    <p id="total-amount">0 ريال</p>
+                </div>
+                <div class="stat-card">
+                    <h3>أكثر نوع مخالفات تكرارًا</h3>
+                    <p id="most-common-violation">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>عدد المواطنين المسجلين</h3>
+                    <p id="total-citizens">0</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>أكثر المواطنين تسجيلاً للمخالفات</h2>
+                <table id="top-violators-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم الكامل</th>
+                            <th>رقم الهوية</th>
+                            <th>عدد المخالفات</th>
+                            <th>إجمالي المبالغ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة المواطن -->
+    <div id="citizen-page" class="container" style="display: none;">
+        <div class="card">
+            <h1>صفحة المواطن - نظام المخالفات</h1>
+            <h2 id="citizen-welcome">مرحباً بك</h2>
+            <button id="citizen-logout" style="width: 200px; margin-right: auto; margin-left: auto; display: block;">تسجيل الخروج</button>
+        </div>
+
+        <div class="citizen-violations">
+            <div class="card">
+                <h2>قائمة المخالفات الخاصة بك</h2>
+                <table id="citizen-violations-table">
+                    <thead>
+                        <tr>
+                            <th>تاريخ المخالفة</th>
+                            <th>نوع المخالفة</th>
+                            <th>التفاصيل</th>
+                            <th>المبلغ المستحق</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم ملؤها بالبيانات ديناميكيًا -->
+                    </tbody>
+                </table>
+                <div id="no-violations" style="text-align: center; padding: 20px; display: none;">
+                    <p>لا توجد مخالفات مسجلة.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>ملخص المخالفات</h2>
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <h3>عدد المخالفات</h3>
+                        <p id="citizen-total-violations">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>إجمالي المبالغ المستحقة</h3>
+                        <p id="citizen-total-amount">0 ريال</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات افتراضية للتطبيق
+        const appData = {
+            admin: {
+                username: "admin",
+                password: "admin"
+            },
+            citizens: [],
+            violations: [],
+            currentUser: null,
+            userType: null // "admin" or "citizen"
+        };
+        
+        // للتأكد من وجود المصفوفات
+        if (!Array.isArray(appData.citizens)) {
+            appData.citizens = [];
+            console.log("تم إنشاء مصفوفة المواطنين");
+        }
+        
+        if (!Array.isArray(appData.violations)) {
+            appData.violations = [];
+            console.log("تم إنشاء مصفوفة المخالفات");
+        }
+
+        // استرجاع البيانات من التخزين المحلي إذا وجدت
+        function loadData() {
+            console.log("جاري تحميل البيانات...");
+            const storedCitizens = localStorage.getItem('citizens');
+            const storedViolations = localStorage.getItem('violations');
+            
+            if (storedCitizens) {
+                try {
+                    appData.citizens = JSON.parse(storedCitizens);
+                    console.log("تم تحميل المواطنين:", appData.citizens);
+                } catch (e) {
+                    console.error("خطأ في تحميل بيانات المواطنين:", e);
+                    appData.citizens = [];
+                }
+            } else {
+                appData.citizens = [];
+                console.log("لم يتم العثور على بيانات المواطنين، تم إنشاء مصفوفة فارغة");
+            }
+            
+            if (storedViolations) {
+                try {
+                    appData.violations = JSON.parse(storedViolations);
+                    console.log("تم تحميل المخالفات:", appData.violations);
+                } catch (e) {
+                    console.error("خطأ في تحميل بيانات المخالفات:", e);
+                    appData.violations = [];
+                }
+            } else {
+                appData.violations = [];
+                console.log("لم يتم العثور على بيانات المخالفات، تم إنشاء مصفوفة فارغة");
+            }
+        }
+
+        // حفظ البيانات في التخزين المحلي
+        function saveData() {
+            console.log("جاري حفظ البيانات...");
+            try {
+                localStorage.setItem('citizens', JSON.stringify(appData.citizens));
+                localStorage.setItem('violations', JSON.stringify(appData.violations));
+                console.log("تم حفظ البيانات بنجاح");
+            } catch (e) {
+                console.error("خطأ في حفظ البيانات:", e);
+                alert("حدث خطأ في حفظ البيانات!");
+            }
+        }
+
+        // تسجيل الدخول
+        document.getElementById('login-btn').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === appData.admin.username && password === appData.admin.password) {
+                // تسجيل دخول المدير
+                appData.currentUser = appData.admin;
+                appData.userType = "admin";
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('admin-page').style.display = 'block';
+                updateAdminDashboard();
+            } else {
+                // البحث عن المواطن بواسطة رقم الهوية
+                const citizen = appData.citizens.find(c => c.id === username && c.password === password);
+                if (citizen) {
+                    // تسجيل دخول المواطن
+                    appData.currentUser = citizen;
+                    appData.userType = "citizen";
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('citizen-page').style.display = 'block';
+                    document.getElementById('citizen-welcome').textContent = `مرحباً بك ${citizen.name}`;
+                    updateCitizenDashboard(citizen);
+                } else {
+                    alert('اسم المستخدم أو كلمة المرور غير صحيحة');
+                }
+            }
+        });
+
+        // تحديث لوحة تحكم المدير
+        function updateAdminDashboard() {
+            console.log("جاري تحديث لوحة التحكم...");
+            console.log("عدد المواطنين:", appData.citizens.length);
+            console.log("المواطنين:", appData.citizens);
+            
+            // تحديث قائمة المواطنين
+            const citizensTable = document.getElementById('citizens-table').getElementsByTagName('tbody')[0];
+            citizensTable.innerHTML = '';
+            
+            if (Array.isArray(appData.citizens) && appData.citizens.length > 0) {
+                appData.citizens.forEach(citizen => {
+                    try {
+                        const citizenViolations = appData.violations.filter(v => v.citizenId === citizen.id);
+                        const row = citizensTable.insertRow();
+                        row.insertCell().textContent = citizen.name;
+                        row.insertCell().textContent = citizen.id;
+                        row.insertCell().textContent = citizen.phone || '-';
+                        row.insertCell().textContent = citizenViolations.length;
+                        
+                        const actionsCell = row.insertCell();
+                        const viewBtn = document.createElement('button');
+                        viewBtn.textContent = 'عرض المخالفات';
+                        viewBtn.style.width = 'auto';
+                        viewBtn.style.marginLeft = '5px';
+                        viewBtn.addEventListener('click', function() {
+                            showCitizenViolations(citizen);
+                        });
+                        actionsCell.appendChild(viewBtn);
+                    } catch (e) {
+                        console.error("خطأ في عرض المواطن:", citizen, e);
+                    }
+                });
+            } else {
+                console.log("لا يوجد مواطنين لعرضهم");
+            }
+
+            // تحديث قائمة المواطنين في نموذج إضافة المخالفات
+            const citizenSelect = document.getElementById('violation-citizen');
+            citizenSelect.innerHTML = '<option value="" disabled selected>اختر المواطن</option>';
+            
+            if (Array.isArray(appData.citizens) && appData.citizens.length > 0) {
+                appData.citizens.forEach(citizen => {
+                    try {
+                        const option = document.createElement('option');
+                        option.value = citizen.id;
+                        option.textContent = `${citizen.name} (${citizen.id})`;
+                        citizenSelect.appendChild(option);
+                    } catch (e) {
+                        console.error("خطأ في إضافة المواطن للقائمة المنسدلة:", citizen, e);
+                    }
+                });
+            }
+
+            // تحديث جدول المخالفات
+            updateViolationsTable();
+
+            // تحديث التقارير
+            updateReports();
+        }
+
+        // تحديث جدول المخالفات
+        function updateViolationsTable() {
+            const violationsTable = document.getElementById('violations-table').getElementsByTagName('tbody')[0];
+            violationsTable.innerHTML = '';
+            
+            appData.violations.forEach(violation => {
+                const citizen = appData.citizens.find(c => c.id === violation.citizenId);
+                if (!citizen) return;
+                
+                const row = violationsTable.insertRow();
+                row.insertCell().textContent = citizen.name;
+                row.insertCell().textContent = citizen.id;
+                row.insertCell().textContent = violation.date;
+                row.insertCell().textContent = violation.type;
+                row.insertCell().textContent = violation.amount + ' ريال';
+                
+                const actionsCell = row.insertCell();
+                const detailsBtn = document.createElement('button');
+                detailsBtn.textContent = 'التفاصيل';
+                detailsBtn.style.width = 'auto';
+                detailsBtn.addEventListener('click', function() {
+                    alert(`تفاصيل المخالفة: ${violation.details}`);
+                });
+                actionsCell.appendChild(detailsBtn);
+            });
+        }
+
+        // تحديث التقارير
+        function updateReports() {
+            // إجمالي عدد المخالفات
+            document.getElementById('total-violations').textContent = appData.violations.length;
+            
+            // مجموع المبالغ المستحقة
+            const totalAmount = appData.violations.reduce((sum, v) => sum + parseInt(v.amount), 0);
+            document.getElementById('total-amount').textContent = totalAmount + ' ريال';
+            
+            // أكثر نوع مخالفات تكرارًا
+            const violationTypes = {};
+            appData.violations.forEach(v => {
+                violationTypes[v.type] = (violationTypes[v.type] || 0) + 1;
+            });
+            
+            let mostCommonType = '-';
+            let maxCount = 0;
+            
+            for (const type in violationTypes) {
+                if (violationTypes[type] > maxCount) {
+                    maxCount = violationTypes[type];
+                    mostCommonType = type;
+                }
+            }
+            
+            document.getElementById('most-common-violation').textContent = mostCommonType;
+            document.getElementById('total-citizens').textContent = appData.citizens.length;
+            
+            // أكثر المواطنين تسجيلاً للمخالفات
+            const citizenViolations = {};
+            appData.citizens.forEach(c => {
+                citizenViolations[c.id] = {
+                    name: c.name,
+                    id: c.id,
+                    count: 0,
+                    totalAmount: 0
+                };
+            });
+            
+            appData.violations.forEach(v => {
+                if (citizenViolations[v.citizenId]) {
+                    citizenViolations[v.citizenId].count++;
+                    citizenViolations[v.citizenId].totalAmount += parseInt(v.amount);
+                }
+            });
+            
+            const topViolators = Object.values(citizenViolations)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+            
+            const topViolatorsTable = document.getElementById('top-violators-table').getElementsByTagName('tbody')[0];
+            topViolatorsTable.innerHTML = '';
+            
+            topViolators.forEach(violator => {
+                if (violator.count > 0) {
+                    const row = topViolatorsTable.insertRow();
+                    row.insertCell().textContent = violator.name;
+                    row.insertCell().textContent = violator.id;
+                    row.insertCell().textContent = violator.count;
+                    row.insertCell().textContent = violator.totalAmount + ' ريال';
+                }
+            });
+        }
+
+        // عرض مخالفات مواطن محدد
+        function showCitizenViolations(citizen) {
+            const violations = appData.violations.filter(v => v.citizenId === citizen.id);
+            
+            // تبديل التبويب إلى البحث
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('.tab[data-tab="search"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById('search-tab').style.display = 'block';
+            
+            // عرض النتائج
+            const resultsContent = document.getElementById('search-results-content');
+            resultsContent.innerHTML = '';
+            
+            const header = document.createElement('h3');
+            header.textContent = `مخالفات المواطن: ${citizen.name} (${citizen.id})`;
+            resultsContent.appendChild(header);
+            
+            if (violations.length === 0) {
+                const noViolations = document.createElement('p');
+                noViolations.textContent = 'لا توجد مخالفات مسجلة لهذا المواطن.';
+                resultsContent.appendChild(noViolations);
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>تاريخ المخالفة</th>
+                        <th>نوع المخالفة</th>
+                        <th>التفاصيل</th>
+                        <th>المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+            
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            violations.forEach(violation => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = violation.date;
+                row.insertCell().textContent = violation.type;
+                row.insertCell().textContent = violation.details;
+                row.insertCell().textContent = violation.amount + ' ريال';
+            });
+            
+            resultsContent.appendChild(table);
+            
+            const totalAmount = violations.reduce((sum, v) => sum + parseInt(v.amount), 0);
+            const summary = document.createElement('p');
+            summary.style.fontWeight = 'bold';
+            summary.textContent = `إجمالي المخالفات: ${violations.length} | إجمالي المبالغ: ${totalAmount} ريال`;
+            resultsContent.appendChild(summary);
+        }
+
+        // تحديث لوحة المواطن
+        function updateCitizenDashboard(citizen) {
+            const violations = appData.violations.filter(v => v.citizenId === citizen.id);
+            const violationsTable = document.getElementById('citizen-violations-table').getElementsByTagName('tbody')[0];
+            
+            violationsTable.innerHTML = '';
+            
+            if (violations.length === 0) {
+                document.getElementById('no-violations').style.display = 'block';
+            } else {
+                document.getElementById('no-violations').style.display = 'none';
+                
+                violations.forEach(violation => {
+                    const row = violationsTable.insertRow();
+                    row.insertCell().textContent = violation.date;
+                    row.insertCell().textContent = violation.type;
+                    row.insertCell().textContent = violation.details;
+                    row.insertCell().textContent = violation.amount + ' ريال';
+                });
+            }
+            
+            // تحديث الإحصائيات
+            document.getElementById('citizen-total-violations').textContent = violations.length;
+            
+            const totalAmount = violations.reduce((sum, v) => sum + parseInt(v.amount), 0);
+            document.getElementById('citizen-total-amount').textContent = totalAmount + ' ريال';
+        }
+
+        // إضافة مواطن جديد
+        document.getElementById('add-citizen-btn').addEventListener('click', function() {
+            console.log("تم النقر على زر إضافة مواطن");
+            const name = document.getElementById('citizen-name').value;
+            const id = document.getElementById('citizen-id').value;
+            const phone = document.getElementById('citizen-phone').value;
+            const password = document.getElementById('citizen-password').value;
+            
+            console.log("بيانات المواطن:", name, id, phone, password);
+            
+            if (!name || !id || !password) {
+                alert('يرجى ملء الحقول الإلزامية: الاسم، رقم الهوية، وكلمة المرور');
+                return;
+            }
+            
+            // التحقق من عدم وجود مواطن بنفس الرقم
+            if (appData.citizens.find(c => c.id === id)) {
+                alert('يوجد مواطن مسجل بنفس رقم الهوية');
+                return;
+            }
+            
+            const newCitizen = {
+                name: name,
+                id: id,
+                phone: phone,
+                password: password
+            };
+            
+            // إضافة المواطن الجديد
+            if (!Array.isArray(appData.citizens)) {
+                appData.citizens = [];
+            }
+            
+            appData.citizens.push(newCitizen);
+            console.log("تم إضافة المواطن:", newCitizen);
+            console.log("قائمة المواطنين الآن:", appData.citizens);
+            
+            // حفظ البيانات
+            saveData();
+            
+            // تنظيف الحقول
+            document.getElementById('citizen-name').value = '';
+            document.getElementById('citizen-id').value = '';
+            document.getElementById('citizen-phone').value = '';
+            document.getElementById('citizen-password').value = '';
+            
+            alert('تم إضافة المواطن بنجاح');
+            updateAdminDashboard();
+        });
+
+        // إضافة مخالفة جديدة
+        document.getElementById('add-violation-btn').addEventListener('click', function() {
+            const citizenId = document.getElementById('violation-citizen').value;
+            const date = document.getElementById('violation-date').value;
+            const type = document.getElementById('violation-type').value;
+            const details = document.getElementById('violation-details').value;
+            const amount = document.getElementById('violation-amount').value;
+            
+            if (!citizenId || !date || !type || !amount) {
+                alert('يرجى ملء جميع الحقول الإلزامية');
+                return;
+            }
+            
+            const newViolation = {
+                citizenId,
+                date,
+                type,
+                details,
+                amount
+            };
+            
+            appData.violations.push(newViolation);
+            saveData();
+            
+            // تنظيف الحقول
+            document.getElementById('violation-citizen').value = '';
+            document.getElementById('violation-date').value = '';
+            document.getElementById('violation-type').value = '';
+            document.getElementById('violation-details').value = '';
+            document.getElementById('violation-amount').value = '';
+            
+            alert('تم تسجيل المخالفة بنجاح');
+            updateAdminDashboard();
+        });
+
+        // تسجيل الخروج
+        document.querySelector('.tab[data-tab="logout"]').addEventListener('click', function() {
+            appData.currentUser = null;
+            appData.userType = null;
+            document.getElementById('admin-page').style.display = 'none';
+            document.getElementById('citizen-page').style.display = 'none';
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        });
+
+        // تسجيل خروج المواطن
+        document.getElementById('citizen-logout').addEventListener('click', function() {
+            appData.currentUser = null;
+            appData.userType = null;
+            document.getElementById('citizen-page').style.display = 'none';
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        });
+
+        // البحث عن مواطن
+        document.getElementById('search-citizen-btn').addEventListener('click', function() {
+            const searchTerm = document.getElementById('citizen-search').value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                updateAdminDashboard();
+                return;
+            }
+            
+            const filteredCitizens = appData.citizens.filter(c => 
+                c.name.toLowerCase().includes(searchTerm) || 
+                c.id.includes(searchTerm)
+            );
+            
+            const citizensTable = document.getElementById('citizens-table').getElementsByTagName('tbody')[0];
+            citizensTable.innerHTML = '';
+            
+            filteredCitizens.forEach(citizen => {
+                const citizenViolations = appData.violations.filter(v => v.citizenId === citizen.id);
+                const row = citizensTable.insertRow();
+                row.insertCell().textContent = citizen.name;
+                row.insertCell().textContent = citizen.id;
+                row.insertCell().textContent = citizen.phone || '-';
+                row.insertCell().textContent = citizenViolations.length;
+                
+                const actionsCell = row.insertCell();
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = 'عرض المخالفات';
+                viewBtn.style.width = 'auto';
+                viewBtn.style.marginLeft = '5px';
+                viewBtn.addEventListener('click', function() {
+                    showCitizenViolations(citizen);
+                });
+                actionsCell.appendChild(viewBtn);
+            });
+        });
+
+        // التبديل بين أنواع البحث
+        document.getElementById('search-type').addEventListener('change', function() {
+            const searchType = this.value;
+            
+            if (searchType === 'citizen') {
+                document.getElementById('citizen-search-form').style.display = 'block';
+                document.getElementById('violation-search-form').style.display = 'none';
+            } else {
+                document.getElementById('citizen-search-form').style.display = 'none';
+                document.getElementById('violation-search-form').style.display = 'block';
+            }
+        });
+
+        // البحث عن مواطن (في قسم البحث)
+        document.getElementById('search-citizen-submit').addEventListener('click', function() {
+            const searchTerm = document.getElementById('search-citizen-name').value.trim().toLowerCase();
+            
+            if (!searchTerm) {
+                alert('يرجى إدخال اسم المواطن أو رقم الهوية');
+                return;
+            }
+            
+            const filteredCitizens = appData.citizens.filter(c => 
+                c.name.toLowerCase().includes(searchTerm) || 
+                c.id.includes(searchTerm)
+            );
+            
+            const resultsContent = document.getElementById('search-results-content');
+            resultsContent.innerHTML = '';
+            
+            if (filteredCitizens.length === 0) {
+                resultsContent.innerHTML = '<p>لا توجد نتائج للبحث</p>';
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>الاسم الكامل</th>
+                        <th>رقم الهوية</th>
+                        <th>رقم الجوال</th>
+                        <th>عدد المخالفات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+            
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            filteredCitizens.forEach(citizen => {
+                const citizenViolations = appData.violations.filter(v => v.citizenId === citizen.id);
+                const row = tbody.insertRow();
+                row.insertCell().textContent = citizen.name;
+                row.insertCell().textContent = citizen.id;
+                row.insertCell().textContent = citizen.phone || '-';
+                row.insertCell().textContent = citizenViolations.length;
+                
+                const actionsCell = row.insertCell();
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = 'عرض المخالفات';
+                viewBtn.style.width = 'auto';
+                viewBtn.addEventListener('click', function() {
+                    showCitizenViolations(citizen);
+                });
+                actionsCell.appendChild(viewBtn);
+            });
+            
+            resultsContent.appendChild(table);
+        });
+
+        // البحث عن مخالفة
+        document.getElementById('search-violation-submit').addEventListener('click', function() {
+            const type = document.getElementById('search-violation-type').value;
+            const date = document.getElementById('search-violation-date').value;
+            
+            let filteredViolations = [...appData.violations];
+            
+            if (type) {
+                filteredViolations = filteredViolations.filter(v => v.type === type);
+            }
+            
+            if (date) {
+                filteredViolations = filteredViolations.filter(v => v.date === date);
+            }
+            
+            const resultsContent = document.getElementById('search-results-content');
+            resultsContent.innerHTML = '';
+            
+            if (filteredViolations.length === 0) {
+                resultsContent.innerHTML = '<p>لا توجد نتائج للبحث</p>';
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>المواطن</th>
+                        <th>رقم الهوية</th>
+                        <th>تاريخ المخالفة</th>
+                        <th>نوع المخالفة</th>
+                        <th>المبلغ</th>
+                        <th>التفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            `;
+            
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            filteredViolations.forEach(violation => {
+                const citizen = appData.citizens.find(c => c.id === violation.citizenId);
+                if (!citizen) return;
+                
+                const row = tbody.insertRow();
+                row.insertCell().textContent = citizen.name;
+                row.insertCell().textContent = citizen.id;
+                row.insertCell().textContent = violation.date;
+                row.insertCell().textContent = violation.type;
+                row.insertCell().textContent = violation.amount + ' ريال';
+                row.insertCell().textContent = violation.details;
+            });
+            
+            resultsContent.appendChild(table);
+        });
+
+        // التبديل بين التبويبات
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                if (this.dataset.tab === 'logout') return; // تخطي منطق التبويب للخروج
+                
+                // تنشيط التبويب المحدد
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // إظهار المحتوى المرتبط
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(this.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        // تحميل البيانات عند بدء التطبيق وتحديث اللوحة
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("تم تحميل الصفحة");
+            loadData();
+            
+            // إضافة معالجة الأحداث للأزرار
+            // للتأكد من أن مستمعي الأحداث تم تسجيلهم بشكل صحيح
+            console.log("جاري إعداد مستمعي الأحداث...");
+        });
+    </script>
+</body>
+</html>
